@@ -1,0 +1,56 @@
+version: '3'
+services:
+
+  splitterpg_dev:
+      image: postgres:9.5
+      ports:
+        - "5432:5432"
+      environment:
+        - POSTGRES_USER=splitter
+        - POSTGRES_PASSWORD=splitter
+        - POSTGRES_DB=splitter
+      volumes:
+        - ./postgres-data/postgres:/var/lib/postgresql/data
+
+  splitterlocalstack_dev:
+    image: localstack/localstack
+    hostname: localstack
+    ports:
+      - "4567-4584:4567-4584"
+      - "${PORT_WEB_UI-8082}:${PORT_WEB_UI-8082}"
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - DATA_DIR=${DATA_DIR- }
+      - PORT_WEB_UI=${PORT_WEB_UI- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  # nginx:
+  #   image: "nginx:1.13.5"
+  #   ports:
+  #     - "8080:80"
+  #   volumes:
+  #     - ./config/conf.d:/etc/nginx/conf.d
+  #   networks:
+  #     - web_nw
+
+  splitter_dev:
+    restart: always
+    image: "splitter/splitter:latest"
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./env-files/dev-env-file
+    depends_on:
+      - splitterpg_dev
+    volumes:
+      - ../:/app/
+    links:
+      - "splitterlocalstack_dev"
+      - "splitterpg_dev"
+    depends_on:
+      - "splitterlocalstack_dev"
+      - "splitterpg_dev"
