@@ -7,7 +7,8 @@ from flask import Flask
 from flask_uploads import UploadSet, IMAGES, configure_uploads
 
 from splitter import receipts, restaurants
-from splitter.extensions import bcrypt, db, migrate, conf, bootstrap
+from splitter import views
+from splitter.extensions import bcrypt, db, migrate, bootstrap, nav
 from splitter.settings import configs
 
 
@@ -17,6 +18,7 @@ def create_app(config=None):
     config = os.environ.get('CONFIG', 'dev')
     app.logger.info("Config: %s" % config)
     app.config.from_object(configs.get(config, None) or configs['default'])
+    app.template_folder = app.config.get('TEMPLATE_FOLDER', 'templates')
 
     register_extensions(app)
     register_blueprints(app)
@@ -32,7 +34,6 @@ def register_extensions(app):
     bcrypt.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
-    conf.init_app(app)
     bootstrap.init_app(app)
 
 
@@ -41,6 +42,6 @@ def register_blueprints(app):
     # origins = app.config.get('CORS_ORIGIN_WHITELIST', '*')
     # cors.init_app(receipts.views.blueprint, origins=origins)
     # cors.init_app(restaurants.views.blueprint, origins=origins)
-
-    app.register_blueprint(receipts.views.blueprint)
-    app.register_blueprint(restaurants.views.blueprint)
+    app.register_blueprint(views.blueprint, url_prefix='/')
+    app.register_blueprint(receipts.views.blueprint, url_prefix='/receipts')
+    app.register_blueprint(restaurants.views.blueprint, url_prefix='/restaurants')

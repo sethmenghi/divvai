@@ -8,7 +8,7 @@ from splitter.exceptions import ImageFileNotFound
 from splitter.utils import get_labels_from_img, s3_keysize, upload_file_to_s3, delete_s3_key
 
 
-class receipt(SurrogatePK, Model):
+class Receipt(SurrogatePK, Model):
     __tablename__ = 'receipts'
 
     id = Column(db.Integer, primary_key=True)
@@ -18,7 +18,8 @@ class receipt(SurrogatePK, Model):
     s3_key = Column(db.String, default=None, nullable=True)
     labels = Column(db.Text, default=None, nullable=True)
     is_public = Column(db.Boolean, default=True)
-    restaurant_id = db.relationship('Restaurant', backref='receipt', lazy=True)
+    restaurant_id = db.relationship('Restaurant', backref='receipt',
+                                    lazy='dynamic')
 
     def __init__(self, img_filename, url):
         """

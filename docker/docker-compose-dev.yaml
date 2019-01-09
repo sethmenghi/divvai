@@ -47,7 +47,8 @@ services:
     depends_on:
       - splitterpg_dev
     volumes:
-      - ../:/app/
+      - ../migrations/versions/:/app/migrations/versions/
+      # - ../:/app/
     links:
       - "splitterlocalstack_dev"
       - "splitterpg_dev"
