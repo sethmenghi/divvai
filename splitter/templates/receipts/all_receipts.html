@@ -1,26 +1,56 @@
 {% extends "base.html" %}
 {% block content %}
- 
-<div class="user-profile">
+<div class="container">
   <div class="page-header">
-    <h2>receipts</h2>
+    <h2>Receipts</h2>
   </div>
-  <ul class=receipts>
-  {% for receipt in receipts %}
-    <li><h2>{{ receipt.receipt.date }}</h2>
-    {{ receipt.receipt.price }}
-    {{ receipt.receipt.s3_key }}
-    {{ receipt.receipt.labels|safe }}
-    {% if receipt.receipt.image_url %}
-      <img src="{{ receipt.Receipt.img_filename }}" alt="{{ receipt.Receipt.img_filename }}" style="width:600px;height:450px;">
-    }
-    {% endif %}
-  </li>
-  {% else %}
-    <li><em>Unbelievable. No receipts here so far</em></li>
-  {% endfor %}
-  </ul>
-  </div>
-</div>`
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Filename</th>
+        <th scope="col">Date</th>
+        <th scope="col">Price</th>
+        <th scope="col">Url</th>
+        <th scope="col">Filesize</th>
+        <th scope="col">S3 Key</th>
+        <th scope="col">Process Image</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for receipt in receipts %}
+        <tr>
+          <th scope="row">
+            <a href="{{ url_for('receipts.receipt_detail', receipt_id=receipt.id) }}">
+              {{ receipt.id }}
+            </a>
+          </th>
+          <td>{{ receipt.img_filename }}</td>
+          <td>{{ receipt.date if receipt.date else ''}}</td>
+          <td>{{ receipt.price if receipt.price else '' }}</td>
+          <td><a href="{{ receipt.url }}">Img</a></td>
+          <td>{{ receipt.readable_img_size }}</td>
+          {% if receipt.s3_key %}
+            <td>{{ receipt.s3_key }}</td>
+          {% else %}
+            <td>
+              <button type="button" onclick=""location.href='{{ url_for('receipts.put_img_s3', receipt_id=receipt.id) }}';"" class="btn btn-secondary">S3 Upload</button>
+            </td>
+          {% endif %}
+          {% if receipt.text %}
+            <td>
+              <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary" disabled>Process</button>
+            </td>
+          {% else %}
+            <td>
+              <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary">Process</button>
+            </td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>` <!-- end container -->
+
  
 {% endblock %}

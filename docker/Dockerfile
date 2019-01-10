@@ -11,14 +11,18 @@ RUN apt-get install -y python-pip python-dev build-essential
 RUN apt-get install -y libpq-dev python3-dev
 RUN apt-get install python3-psycopg2
 
+RUN pip install awscli boto3 psycopg2
+RUN pip install Flask flask-bootstrap flask-bcrypt flask-debug
+RUN pip install flask-wtf flask-script flask-migrate flask-uploads
+
 EXPOSE 5000
 
 # RUN apt-get install -y awscli
 COPY . /app
 WORKDIR /app
 
-COPY ./docker/requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt
+# COPY ./docker/requirements.txt /app/requirements.txt
+# RUN pip install -r requirements.txt
 
 # RUN ["chmod", "+x", "/app/docker/splitter-entrypoint.sh"]
 ENTRYPOINT ["./docker/splitter-entrypoint.sh"]

@@ -1,14 +1,12 @@
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-from flask_uploads import UploadSet, IMAGES
+
+from splitter.extensions import images
 
 
-images = UploadSet('images', IMAGES)
-
-
-class UploadReceiptForm(Form):
+class UploadReceiptForm(FlaskForm):
     receipt_image = FileField(
-        'receipt Image',
+        'Receipt Image',
         validators=[
             FileRequired(),
             FileAllowed(images, 'Images only!')

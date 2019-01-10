@@ -4,11 +4,11 @@ import os
 from flask import Flask
 
 # from flask_nav import Nav
-from flask_uploads import UploadSet, IMAGES, configure_uploads
+from flask_uploads import configure_uploads
 
 from splitter import receipts, restaurants
 from splitter import views
-from splitter.extensions import bcrypt, db, migrate, bootstrap, nav
+from splitter.extensions import bcrypt, db, migrate, bootstrap, images
 from splitter.settings import configs
 
 
@@ -23,9 +23,6 @@ def create_app(config=None):
     register_extensions(app)
     register_blueprints(app)
 
-    images = UploadSet('images', IMAGES)
-    configure_uploads(app, images)
-
     return app
 
 
@@ -35,6 +32,7 @@ def register_extensions(app):
     db.init_app(app)
     migrate.init_app(app, db)
     bootstrap.init_app(app)
+    configure_uploads(app, images)
 
 
 def register_blueprints(app):

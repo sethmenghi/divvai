@@ -1,6 +1,6 @@
 #!/bin/bash
 
-user_log=$(aws --endpoint-url=http://localstack:4572 s3 mb s3://$UPLOAD_BUCKET)
+user_log=$(aws s3 mb s3://$UPLOAD_BUCKET)
 echo $user_log
 
 init=$(python manage.py db init)

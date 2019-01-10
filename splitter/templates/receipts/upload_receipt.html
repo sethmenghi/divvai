@@ -2,18 +2,23 @@
 {% from "_form_macros.html" import render_field %}
  
 {% block content %}
- 
-<div class="add-recipe">
-  <div class="page-header">
-    <h2>Add a New Receipt</h2>
+<div class="container">
+  <div class="py-5 text-left">
+    <h2>Receipt Upload</h2>
+    <p>Upload a receipt to process</p>
   </div>
-  <form action="{{ url_for('receipts.all_receipts') }}" method="post" enctype="multipart/form-data">
-    {{ form.csrf_token }}
-    <dl>
-      {{ render_field(form.receipt_image, placeholder="Upload Receipt") }}
-    </dl>
-    <button class="btn btn-sm btn-success" type="submit">Add Receipt</button>
-  </form>
+  <hr>
+  <div class="row">
+    <div class="col-md-12">
+    <form class="form form-horizontal" method=POST enctype="multipart/form-data" action="{{ url_for('receipts.upload_receipt') }}" role="form">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        <label for="receipt_image">Receipt Image:</label>
+        {{ form.receipt_image }}
+      </div>
+      <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+  </div>
+  </div>
 </div>
- 
 {% endblock %}

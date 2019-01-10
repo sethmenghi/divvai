@@ -6,12 +6,17 @@ from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy  # , Model
 from flask_bootstrap import Bootstrap
+from flask_uploads import UploadSet, IMAGES
+
+from splitter.settings import DefaultConfig
+
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 migrate = Migrate()
 bootstrap = Bootstrap()
 
+images = UploadSet(DefaultConfig.IMAGE_SET_NAME, IMAGES)
 # from conduit.utils import jwt_identity, identity_loader  # noqa
 
 # jwt = JWTManager()

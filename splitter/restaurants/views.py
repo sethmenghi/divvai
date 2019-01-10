@@ -4,4 +4,7 @@
 
 from flask import Blueprint
 
+from splitter.restaurants.models import Restaurant
+
+
 blueprint = Blueprint('restaurants', __name__)
