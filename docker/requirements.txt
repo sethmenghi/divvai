@@ -2,12 +2,10 @@ awscli
 boto3
 psycopg2
 
-Flask==1.0.2
+Flask
 
-flask-appconfig>=0.10
 flask-bootstrap
 flask-bcrypt
-flask-nav
 flask-debug
 flask-wtf
 flask-script

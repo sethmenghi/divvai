@@ -11,6 +11,13 @@ services:
         - POSTGRES_DB=splitter
       volumes:
         - ./postgres-data/postgres:/var/lib/postgresql/data
+      expose:
+        - "5432"
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
 
   splitterlocalstack_dev:
     image: localstack/localstack
@@ -27,31 +34,3 @@ services:
     volumes:
       - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-
-  # nginx:
-  #   image: "nginx:1.13.5"
-  #   ports:
-  #     - "8080:80"
-  #   volumes:
-  #     - ./config/conf.d:/etc/nginx/conf.d
-  #   networks:
-  #     - web_nw
-
-  splitter_dev:
-    restart: always
-    image: "splitter/splitter:latest"
-    ports:
-      - "5000:5000"
-    env_file:
-      - ./env-files/dev-env-file
-    depends_on:
-      - splitterpg_dev
-    volumes:
-      - ../migrations/versions/:/app/migrations/versions/
-      # - ../:/app/
-    links:
-      - "splitterlocalstack_dev"
-      - "splitterpg_dev"
-    depends_on:
-      - "splitterlocalstack_dev"
-      - "splitterpg_dev"

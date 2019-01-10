@@ -9,4 +9,4 @@ class Restaurant(SurrogatePK, Model):
     name = Column(db.String(50), nullable=False)
     phone_num = Column(db.String, unique=True, nullable=False)
 
-    receipt_id = Column(db.Integer, db.ForeignKey('receipt.id'))
+    receipt = db.relationship('Receipt', backref='restaurant', lazy='dynamic')

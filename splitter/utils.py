@@ -7,28 +7,34 @@ import os
 import boto3
 from flask import current_app
 
-from splitter.exceptions import ImageFileNotFound
+from splitter.exceptions import ImageFileNotFound, S3FileNotFound
 
 
-def get_labels_from_img(key, max_labels=10, min_confidence=90):
+def get_text_from_img(key=None, img_bytes=None):
     """
     Return text from image using amazon rekognition.
 
     :param key: s3 key of image without bucket
     :type key: string
+    :param img_bytes: Blob of img to use rekognition
+    :type img_bytes: bytes
     """
-    bucket = current_app.config['UPLOAD_BUCKET']
     rekognition = boto3.client("rekognition")
-    response = rekognition.detect_labels(
-        Image={
-            'S3Object': {
-                'Bucket': bucket,
-                'Name': key
-            }
-        },
-        MaxLabels=max_labels,
-        MinConfidence=min_confidence)
-    return response['Labels']
+    if key:
+        bucket = current_app.config['UPLOAD_BUCKET']
+        response = rekognition.detect_text(
+            Image={
+                'S3Object': {
+                    'Bucket': bucket,
+                    'Name': key
+                }
+            })
+    elif img_bytes:
+        response = rekognition.detect_text(Bytes=img_bytes)
+    else:
+        e = "One of these parameters must be set: (key, img_bytes)"
+        raise ValueError(e)
+    return response
 
 
 def raise_error_if_file_doesnt_exist(image_path):
@@ -68,8 +74,9 @@ def s3_keysize(key):
     bucket = current_app.config['UPLOAD_BUCKET']
     response = s3.list_objects_v2(Bucket=bucket, Prefix=key)
     for obj in response.get('Contents', []):
-        if obj['key'] == key:
+        if obj['Key'] == key:
             return obj['Size']
+    raise S3FileNotFound("S3 Key %s doesn't exist." % key)
 
 
 def s3_client():
@@ -77,7 +84,8 @@ def s3_client():
     Return s3 client either for localstack (if dev) or aws .
     """
     if current_app.config['LOCALSTACK']:
-        return boto3.client('s3', endpoint_url="http://localstack:4572", use_ssl=False)
+        localstack_host = current_app['S3_LOCALSTACK_HOST']
+        return boto3.client('s3', endpoint_url=localstack_host, use_ssl=False)
     return boto3.client('s3')
 
 
@@ -86,5 +94,14 @@ def s3_resource():
     Return s3 resource either for localstack (if dev) or aws .
     """
     if current_app.config['LOCALSTACK']:
-        return boto3.resource('s3', endpoint_url="http://localstack:4572", use_ssl=False)
+        localstack_host = current_app['S3_LOCALSTACK_HOST']
+        return boto3.resource('s3', endpoint_url=localstack_host, use_ssl=False)
     return boto3.resource('s3')
+
+
+def readable_filesize(num, suffix='B'):
+    for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, 'Y', suffix)
