@@ -3,50 +3,64 @@
 <div class="container">
   <div class="user-profile">
     <div class="page-header">
-      <h2>Receipt: {{ receipt.id }}</h2>
+      <h2>{{ receipt.img_filename }}</h2>
     </div>
    
     <div class="row">
-      <div class="panel panel-primary">
-        <div class="panel-heading">Image Text</div>
-        <div class="panel-body">
-          {% if receipt.text %}
-            {{ receipt.text }}
-          {% else %}
-            <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary">Process</button>
-          {% endif %}
+      <div class="col-md-3">
+        <div class="panel panel-primary">
+          <div class="panel-heading">Receipt ID</div>
+          <div class="panel-body">{{ receipt.id }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="panel panel-primary">
+          <div class="panel-heading">Date</div>
+        <div class="panel-body">{{ receipt.date if receipt.date else 'Not Processed'}}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+       <div class="panel panel-primary">
+          <div class="panel-heading">Price</div>
+          <div class="panel-body">{{ receipt.price if receipt.price else 'Not Processed' }}</div>
         </div>
       </div>
 
-      <div class="panel panel-primary">
-        <div class="panel-heading">Date</div>
-      <div class="panel-body">{{ receipt.date if receipt.date else ''}}</div>
+      <div class="col-md-3">
+        <div class="panel panel-primary">
+          <div class="panel-heading">Is Public</div>
+          {% if receipt.is_public %}
+            <div class="panel-body">Public</div>
+          {% else %}
+            <div class="panel-body">Private</div>
+          {% endif %}
+        </div>
       </div>
+    </div> <!-- end row -->
 
-      <div class="panel panel-primary">
-        <div class="panel-heading">Image Filename</div>
-        <div class="panel-body">{{ receipt.img_filename }}</div>
+    <div class="row">
+      <!-- Raw image text -->
+      <div class="col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">Receipt Image</div>
+          <div class="panel-body">
+            <img class="img-responsive" src="{{ url_for('receipts.img_link', receipt_id=receipt.id) }}" alt="{{ receipt.img_localpath }}">
+          </div>
+        </div>
       </div>
-
-      <div class="panel panel-primary">
-        <div class="panel-heading">Is Public</div>
-        {% if receipt.is_public %}
-          <div class="panel-body">Public</div>
-        {% else %}
-          <div class="panel-body">Private</div>
-        {% endif %}
+      <div class="col-md-6">
+        <div class="panel panel-primary">
+          <div class="panel-heading">Image Raw Text</div>
+          <div class="panel-body">
+            {% if receipt.raw_text %}
+              {{ receipt.raw_text }}
+            {% else %}
+              <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary">Process</button>
+            {% endif %}
+          </div>
+        </div>
       </div>
-   
-      <div class="panel panel-primary">
-        <div class="panel-heading">Price</div>
-        <div class="panel-body">{{ receipt.price if receipt.price else '' }}</div>
-      </div>
-   
-      {% if receipt.img_filename %}
-        <img src="{{ receipt.url }}" alt="{{ receipt.img_filename }}" style="width:600px;height:450px;">
-      {% endif %} 
-   
-    </div>
+    </div> <!-- end row -->
   </div>
 </div>
  

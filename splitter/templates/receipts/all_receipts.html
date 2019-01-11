@@ -37,7 +37,7 @@
               <button type="button" onclick=""location.href='{{ url_for('receipts.put_img_s3', receipt_id=receipt.id) }}';"" class="btn btn-secondary">S3 Upload</button>
             </td>
           {% endif %}
-          {% if receipt.text %}
+          {% if receipt.raw_text %}
             <td>
               <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary" disabled>Process</button>
             </td>

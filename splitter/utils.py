@@ -30,7 +30,7 @@ def get_text_from_img(key=None, img_bytes=None):
                 }
             })
     elif img_bytes:
-        response = rekognition.detect_text(Bytes=img_bytes)
+        response = rekognition.detect_text(Image={'Bytes': img_bytes})
     else:
         e = "One of these parameters must be set: (key, img_bytes)"
         raise ValueError(e)
