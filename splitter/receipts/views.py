@@ -68,7 +68,7 @@ def process_receipt(receipt_id):
     if receipt.raw_text:
         flash("Receipt[%s] already has text its from img." % receipt_id)
     else:
-        receipt.safe_get_text_from_img()
+        receipt.get_text_from_img()
         flash("Receipt[%s] text pulled." % receipt_id)
     return redirect(url_for('.receipt_detail', receipt_id=receipt_id))
 

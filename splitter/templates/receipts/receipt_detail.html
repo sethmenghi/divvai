@@ -53,7 +53,9 @@
           <div class="panel-heading">Image Raw Text</div>
           <div class="panel-body">
             {% if receipt.raw_text %}
-              {{ receipt.raw_text }}
+              {% for line in receipt.raw_text.splitlines() %}
+                {{ line }}<br>
+              {% endfor %}
             {% else %}
               <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary">Process</button>
             {% endif %}

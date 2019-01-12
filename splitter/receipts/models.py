@@ -6,8 +6,8 @@ from flask import current_app
 
 from splitter.database import SurrogatePK, db, Column, Model
 from splitter.exceptions import ImageFileNotFound, S3FileNotFound
-from splitter.utils import (get_text_from_img, s3_keysize, upload_file_to_s3,
-                            readable_filesize)
+from splitter.utils import (get_text_from_img_aws, s3_keysize, upload_file_to_s3,
+                            readable_filesize, get_text_from_img)
 
 
 class Receipt(SurrogatePK, Model):
@@ -132,14 +132,18 @@ class Receipt(SurrogatePK, Model):
         else:
             self.get_text_from_img(img_bytes=self.img_obj)
 
-    def get_text_from_img(self, img_bytes=None):
+    def get_text_from_img(self):
+        self.raw_text = get_text_from_img(self.img_localpath)
+        db.session.commit()
+
+    def get_text_from_img_aws(self, img_bytes=None):
         """
         Set JSON values.
         """
         if not img_bytes:
-            text = get_text_from_img(key=self.s3_key)
+            text = get_text_from_img_aws(key=self.s3_key)
         else:
-            text = get_text_from_img(img_bytes=img_bytes)
+            text = get_text_from_img_aws(img_bytes=img_bytes)
         current_app.logger.info("Retrieved text: %s" % text)
         self.raw_text = json.dumps(text)
         db.session.commit()

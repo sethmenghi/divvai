@@ -3,14 +3,48 @@
 Misc. functions.
 """
 import os
+import tempfile
 
 import boto3
+import pytesseract
+import cv2
 from flask import current_app
+from PIL import Image
 
 from splitter.exceptions import ImageFileNotFound, S3FileNotFound
 
 
-def get_text_from_img(key=None, img_bytes=None):
+def get_text_from_img(img_path):
+    image = set_image_dpi(img_path)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # preprocessed_img = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+    #                                          cv2.THRESH_BINARY, 11, 2)
+    preprocessed_img = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
+    filename = "{}.png".format(os.getpid())
+    cv2.imwrite(filename, preprocessed_img)
+    text = pytesseract.image_to_string(Image.open(filename))
+    current_app.logger.warning("img_path: %s\n%s" % (img_path, text))
+    os.remove(filename)
+    return text
+
+
+def set_image_dpi(file_path):
+    """
+    Return opencv2 image from file_path with a DPI of 300. Optimized for pytesseract.
+    """
+    im = Image.open(file_path)
+    length_x, width_y = im.size
+    factor = min(1, float(1024.0 / length_x))
+    size = int(factor * length_x), int(factor * width_y)
+    im_resized = im.resize(size, Image.ANTIALIAS)
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+    temp_filename = temp_file.name
+    im_resized.save(temp_filename, dpi=(300, 300))
+    return cv2.imread(temp_filename)
+
+
+def get_text_from_img_aws(key=None, img_bytes=None):
     """
     Return text from image using amazon rekognition.
 
