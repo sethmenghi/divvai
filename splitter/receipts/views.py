@@ -73,8 +73,8 @@ def process_receipt(receipt_id):
     return redirect(url_for('.receipt_detail', receipt_id=receipt_id))
 
 
-@blueprint.route("/<receipt_id>/api/img")
-def img_link(receipt_id):
+@blueprint.route("/<receipt_id>/api/img/<_type>")
+def img_link(receipt_id, _type):
     receipt = Receipt.query.get(receipt_id)
     upload_folder = current_app.config.get('UPLOAD_IMAGE_DIR')
     return send_from_directory(upload_folder, receipt.img_filename)
