@@ -17,14 +17,10 @@ from splitter.exceptions import ImageFileNotFound, S3FileNotFound
 def get_text_from_img(img_path):
     image = set_image_dpi(img_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # preprocessed_img = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-    #                                          cv2.THRESH_BINARY, 11, 2)
     preprocessed_img = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-
     filename = "{}.png".format(os.getpid())
     cv2.imwrite(filename, preprocessed_img)
     text = pytesseract.image_to_string(Image.open(filename))
-    current_app.logger.warning("img_path: %s\n%s" % (img_path, text))
     os.remove(filename)
     return text
 

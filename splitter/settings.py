@@ -44,7 +44,6 @@ class DevConfig(DefaultConfig):
     FLASK_DEBUG = True
     LOCALSTACK = False
     LOGGING_LEVEL = 'debug'
-    S3_LOCALSTACK_HOST = 'http://127.0.0.1:4572'
 
 
 configs = {

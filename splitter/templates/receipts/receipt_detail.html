@@ -44,7 +44,7 @@
         <div class="panel panel-primary">
           <div class="panel-heading">Receipt Image</div>
           <div class="panel-body">
-            <img class="img-responsive" src="{{ url_for('receipts.img_link', receipt_id=receipt.id) }}" alt="{{ receipt.img_localpath }}">
+            <img class="img-responsive" src="{{ url_for('receipts.img_link', receipt_id=receipt.id, _type='base') }}" alt="{{ receipt.img_localpath }}">
           </div>
         </div>
       </div>
