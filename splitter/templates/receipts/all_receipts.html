@@ -43,7 +43,7 @@
             <td><button type="button" onclick=""location.href='{{ url_for('receipts.put_img_s3', receipt_id=receipt.id) }}';"" class="btn btn-info" disabled><span class="glyphicon glyphicon-cloud-upload"></span></button></td>
           {% else %}
             <td>
-              <button type="button" onclick=""location.href='{{ url_for('receipts.put_img_s3', receipt_id=receipt.id) }}';"" class="btn btn-info"><span class="glyphicon glyphicon-cloud-upload"></span></button>
+              <button type="button" onclick=""location.href='{{ url_for('receipts.put_img_s3', receipt_id=receipt.id) }}';"" class="btn btn-info" disabled><span class="glyphicon glyphicon-cloud-upload"></span></button>
             </td>
           {% endif %}
           {% if receipt.raw_text %}
