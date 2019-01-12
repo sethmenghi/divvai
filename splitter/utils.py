@@ -91,7 +91,7 @@ def delete_s3_key(key):
     Delete s3 key if exists.
     """
     s3 = s3_resource()
-    current_app.logging.warning("Deleting S3 key=%s" % key)
+    current_app.logger.warning("Deleting S3 key=%s" % key)
     bucket = current_app.config['UPLOAD_BUCKET']
     s3.Object(bucket, key).delete()
 

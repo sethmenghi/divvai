@@ -2,12 +2,12 @@ import os
 import uuid
 import json
 
-from flask import current_app
+from flask import current_app, flash
 
 from splitter.database import SurrogatePK, db, Column, Model
-from splitter.exceptions import ImageFileNotFound, S3FileNotFound
+from splitter.exceptions import S3FileNotFound
 from splitter.utils import (get_text_from_img_aws, s3_keysize, upload_file_to_s3,
-                            readable_filesize, get_text_from_img)
+                            readable_filesize, get_text_from_img, delete_s3_key)
 
 
 class Receipt(SurrogatePK, Model):
@@ -62,9 +62,8 @@ class Receipt(SurrogatePK, Model):
         """
         if os.path.exists(self.img_localpath):
             return os.path.getsize(self.img_localpath)
-        e = "Local receipt img not found: %s" % self.img_localpath
-        current_app.logger.warning("File not found locally or in S3.")
-        raise ImageFileNotFound(e)
+        flash("img not found: %s" % self.img_localpath, 'error')
+        return 0
 
     @property
     def readable_img_size(self):
@@ -119,6 +118,13 @@ class Receipt(SurrogatePK, Model):
             file_ext = os.path.split(self.img_filename)[1].split('.')[-1]
             self.s3_key = str(uuid.uuid1()) + '.' + file_ext
             db.session.commit()
+
+    def delete_s3_key(self):
+        """
+        Delete S3 key.
+        """
+        if self.in_s3:
+            delete_s3_key(self.s3_key)
 
     def safe_get_text_from_img(self):
         """

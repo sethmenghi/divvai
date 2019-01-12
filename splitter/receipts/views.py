@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# import os
-# from markupsafe import escape
+import os
 
 from flask import (Blueprint, render_template, redirect, url_for,
                    request, current_app, flash, send_from_directory)
@@ -49,6 +48,23 @@ def upload_receipt():
             flash('ERROR! receipt was not added.', 'error')
 
     return render_template('receipts/upload_receipt.html', form=form)
+
+
+@blueprint.route("/<receipt_id>/api/delete")
+def delete_receipt(receipt_id):
+    """
+    Delete receipt from db and delete local img.
+    """
+    receipt = Receipt.query.get(receipt_id)
+    if os.path.exists(receipt.img_localpath):
+        os.remove(receipt.img_localpath)
+        current_app.logger.warning("Deleted local img: %s" % receipt.img_localpath)
+    if receipt.s3_key:
+        receipt.delete_s3_key()
+    db.session.delete(receipt)
+    db.session.commit()
+    flash("Deleted %s" % receipt.img_filename)
+    return redirect(url_for('.all_receipts'))
 
 
 @blueprint.route("/<receipt_id>/api/s3")

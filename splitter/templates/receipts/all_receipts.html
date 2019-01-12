@@ -1,6 +1,16 @@
 {% extends "base.html" %}
+{% import "bootstrap/utils.html" as utils %}
 {% block content %}
 <div class="container">
+  {%- with messages = get_flashed_messages(with_categories=True) %}
+    {%- if messages %}
+      <div class="row">
+        <div class="col-md-12">
+          {{utils.flashed_messages(messages)}}
+        </div>
+      </div>
+    {%- endif %}
+  {%- endwith %}
   <div class="page-header">
     <h2>Receipts</h2>
   </div>
@@ -11,10 +21,10 @@
         <th scope="col">Filename</th>
         <th scope="col">Date</th>
         <th scope="col">Price</th>
-        <th scope="col">Url</th>
         <th scope="col">Filesize</th>
-        <th scope="col">S3 Key</th>
-        <th scope="col">Process Image</th>
+        <th scope="col">S3 Upload</th>
+        <th scope="col">Process</th>
+        <th scope="col">Delete</th>
       </tr>
     </thead>
     <tbody>
@@ -28,24 +38,26 @@
           <td>{{ receipt.img_filename }}</td>
           <td>{{ receipt.date if receipt.date else ''}}</td>
           <td>{{ receipt.price if receipt.price else '' }}</td>
-          <td><a href="{{ receipt.url }}">Img</a></td>
           <td>{{ receipt.readable_img_size }}</td>
           {% if receipt.s3_key %}
-            <td>{{ receipt.s3_key }}</td>
+            <td><button type="button" onclick=""location.href='{{ url_for('receipts.put_img_s3', receipt_id=receipt.id) }}';"" class="btn btn-info" disabled><span class="glyphicon glyphicon-cloud-upload"></span></button></td>
           {% else %}
             <td>
-              <button type="button" onclick=""location.href='{{ url_for('receipts.put_img_s3', receipt_id=receipt.id) }}';"" class="btn btn-secondary">S3 Upload</button>
+              <button type="button" onclick=""location.href='{{ url_for('receipts.put_img_s3', receipt_id=receipt.id) }}';"" class="btn btn-info"><span class="glyphicon glyphicon-cloud-upload"></span></button>
             </td>
           {% endif %}
           {% if receipt.raw_text %}
             <td>
-              <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary" disabled>Process</button>
+              <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary">
+                <span class="glyphicon glyphicon-repeat"></span>
+              </button>
             </td>
           {% else %}
             <td>
-              <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary">Process</button>
+              <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary"><span class="glyphicon glyphicon-cog"></button>
             </td>
           {% endif %}
+          <td><button type="button" onclick="location.href='{{ url_for('receipts.delete_receipt', receipt_id=receipt.id) }}';" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></button></td>
         </tr>
       {% endfor %}
     </tbody>
