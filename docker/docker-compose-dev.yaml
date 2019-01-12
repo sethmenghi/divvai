@@ -1,57 +1,47 @@
 version: '3'
 services:
 
-  splitterpg_dev:
+  splitter_db:
       image: postgres:9.5
       ports:
         - "5432:5432"
       environment:
-        - POSTGRES_USER=splitter
-        - POSTGRES_PASSWORD=splitter
-        - POSTGRES_DB=splitter
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - POSTGRES_DB=${POSTGRES_DB}
       volumes:
         - ./postgres-data/postgres:/var/lib/postgresql/data
+      networks:
+        db_nw
 
-  splitterlocalstack_dev:
-    image: localstack/localstack
-    hostname: localstack
+  nginx:
+    image: "nginx:1.13.5"
     ports:
-      - "4567-4584:4567-4584"
-      - "${PORT_WEB_UI-8082}:${PORT_WEB_UI-8082}"
-    environment:
-      - SERVICES=s3
-      - DEBUG=1
-      - DATA_DIR=${DATA_DIR- }
-      - PORT_WEB_UI=${PORT_WEB_UI- }
-      - DOCKER_HOST=unix:///var/run/docker.sock
+      - "8080:80"
     volumes:
-      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./conf.d:/etc/nginx/conf.d
+    networks:
+      - web_nw
 
-  # nginx:
-  #   image: "nginx:1.13.5"
-  #   ports:
-  #     - "8080:80"
-  #   volumes:
-  #     - ./config/conf.d:/etc/nginx/conf.d
-  #   networks:
-  #     - web_nw
-
-  splitter_dev:
+  splitter:
     restart: always
     image: "splitter/splitter:latest"
     ports:
       - "5000:5000"
     env_file:
       - ./env-files/dev-env-file
-    depends_on:
-      - splitterpg_dev
     volumes:
       - ../migrations/versions/:/app/migrations/versions/
-      # - ../:/app/
     links:
-      - "splitterlocalstack_dev"
-      - "splitterpg_dev"
+      - "splitter_db"
     depends_on:
-      - "splitterlocalstack_dev"
-      - "splitterpg_dev"
+      - "splitter_db"
+    networks:
+      - web_nw
+      - db_nw
+
+networks:
+  db_nw:
+    driver: bridge
+  web_nw:
+    driver: bridge

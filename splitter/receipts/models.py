@@ -6,8 +6,8 @@ from flask import current_app
 
 from splitter.database import SurrogatePK, db, Column, Model
 from splitter.exceptions import ImageFileNotFound, S3FileNotFound
-from splitter.utils import (get_text_from_img, s3_keysize, upload_file_to_s3,
-                            readable_filesize)
+from splitter.utils import (get_text_from_img_aws, s3_keysize, upload_file_to_s3,
+                            readable_filesize, get_text_from_img)
 
 
 class Receipt(SurrogatePK, Model):
@@ -18,6 +18,7 @@ class Receipt(SurrogatePK, Model):
     date = Column(db.DateTime, nullable=True)
     img_filename = Column(db.String, nullable=False)
     s3_key = Column(db.String, nullable=True)
+    raw_text = Column(db.Text, nullable=True)
     text = Column(db.Text, nullable=True)
     is_public = Column(db.Boolean, default=True)
     restaurant_id = Column(db.Integer, db.ForeignKey('restaurants.id'), nullable=True)
@@ -26,12 +27,8 @@ class Receipt(SurrogatePK, Model):
         """
         Initialize the receipt object by processing the image.
         """
-        # self.date = date
-        # self.price = price
         self.img_filename = img_filename
         self.url = url
-        # self.json_str = json_str
-        # self.restaurant_id = restaurant_id
 
     def __repr__(self):
         return '<id: {}, price: {}, date: {}'.format(self.id, self.price, self.date)
@@ -40,7 +37,10 @@ class Receipt(SurrogatePK, Model):
     def img_localpath(self):
         base_dir = current_app.config.get('UPLOADS_DEFAULT_DEST', None)
         img_set_folder = current_app.config.get('IMAGE_SET_NAME', None)
-        return os.path.join(base_dir, img_set_folder, self.img_filename)
+        path = os.path.join(base_dir, img_set_folder, self.img_filename)
+        if not os.path.exists(path):
+            current_app.logger.warning("IMG not found locally (%s)" % path)
+        return path
 
     @property
     def in_s3(self):
@@ -120,26 +120,30 @@ class Receipt(SurrogatePK, Model):
             self.s3_key = str(uuid.uuid1()) + '.' + file_ext
             db.session.commit()
 
-    def safe_process_img(self):
+    def safe_get_text_from_img(self):
         """
-        Safely process img labels.
+        Safely get text from img.
         """
         # Images larger than 5 MB need to be in S3.
         if self.img_size >= 1048576:
             self.set_s3_key()
             self.safe_s3_upload()
-            self.process_img()
+            self.get_text_from_img()
         else:
-            self.process_img(img_bytes=self.img_obj)
+            self.get_text_from_img(img_bytes=self.img_obj)
 
-    def process_img(self, img_bytes=None):
+    def get_text_from_img(self):
+        self.raw_text = get_text_from_img(self.img_localpath)
+        db.session.commit()
+
+    def get_text_from_img_aws(self, img_bytes=None):
         """
         Set JSON values.
         """
         if not img_bytes:
-            text = get_text_from_img(key=self.s3_key)
+            text = get_text_from_img_aws(key=self.s3_key)
         else:
-            text = get_text_from_img(img_bytes=img_bytes)
+            text = get_text_from_img_aws(img_bytes=img_bytes)
         current_app.logger.info("Retrieved text: %s" % text)
-        self.text = json.dumps(text)
+        self.raw_text = json.dumps(text)
         db.session.commit()

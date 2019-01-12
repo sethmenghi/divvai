@@ -1,6 +1,10 @@
 awscli
 boto3
 psycopg2
+opencv2
+pytesseract
+
+uWSGI
 
 Flask
 

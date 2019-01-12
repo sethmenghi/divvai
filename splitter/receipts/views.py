@@ -2,7 +2,8 @@
 # import os
 # from markupsafe import escape
 
-from flask import Blueprint, render_template, redirect, url_for, request, current_app, flash  # , flash_errors
+from flask import (Blueprint, render_template, redirect, url_for,
+                   request, current_app, flash, send_from_directory)
 
 from splitter.database import db
 from splitter.forms import UploadReceiptForm
@@ -45,7 +46,6 @@ def upload_receipt():
             flash(msg, 'success')
             return redirect(url_for('.receipt_detail', receipt_id=new_receipt.id))
         else:
-            # flash(form)
             flash('ERROR! receipt was not added.', 'error')
 
     return render_template('receipts/upload_receipt.html', form=form)
@@ -65,9 +65,16 @@ def put_img_s3(receipt_id):
 @blueprint.route("/<receipt_id>/api/process")
 def process_receipt(receipt_id):
     receipt = Receipt.query.get(receipt_id)
-    if receipt.text:
-        flash("Receipt[%s] is already in S3." % receipt_id)
+    if receipt.raw_text:
+        flash("Receipt[%s] already has text its from img." % receipt_id)
     else:
-        receipt.safe_process_img()
-        flash("Receipt[%s] processed." % receipt_id)
+        receipt.get_text_from_img()
+        flash("Receipt[%s] text pulled." % receipt_id)
     return redirect(url_for('.receipt_detail', receipt_id=receipt_id))
+
+
+@blueprint.route("/<receipt_id>/api/img")
+def img_link(receipt_id):
+    receipt = Receipt.query.get(receipt_id)
+    upload_folder = current_app.config.get('UPLOAD_IMAGE_DIR')
+    return send_from_directory(upload_folder, receipt.img_filename)
