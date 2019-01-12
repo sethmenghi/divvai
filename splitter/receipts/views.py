@@ -82,10 +82,10 @@ def put_img_s3(receipt_id):
 def process_receipt(receipt_id):
     receipt = Receipt.query.get(receipt_id)
     if receipt.raw_text:
-        flash("Receipt[%s] already has text its from img." % receipt_id)
+        flash("Text for %s reprocessed" % receipt.img_filename, 'warning')
     else:
-        receipt.get_text_from_img()
-        flash("Receipt[%s] text pulled." % receipt_id)
+        flash("Text for %s processed" % receipt.img_filename)
+    receipt.get_text_from_img()
     return redirect(url_for('.receipt_detail', receipt_id=receipt_id))
 
 
