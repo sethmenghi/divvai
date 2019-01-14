@@ -54,7 +54,7 @@
             </td>
           {% else %}
             <td>
-              <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary"><span class="glyphicon glyphicon-cog"></span></button>
+              <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id, preprocess_type='threshold') }}';" class="btn btn-primary"><span class="glyphicon glyphicon-cog"></span></button>
             </td>
           {% endif %}
           <td><button type="button" onclick="location.href='{{ url_for('receipts.delete_receipt', receipt_id=receipt.id) }}';" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></button></td>
