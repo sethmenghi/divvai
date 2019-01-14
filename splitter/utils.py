@@ -14,15 +14,36 @@ from PIL import Image
 from splitter.exceptions import ImageFileNotFound, S3FileNotFound
 
 
-def get_text_from_img(img_path):
+def get_text_from_img(img_path, preprocess_type='threshold'):
+    # Load image and remove color and preprocess
     image = set_image_dpi(img_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    preprocessed_img = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    preprocessed_img = preprocess_img(gray, preprocess_type)
+    # Write to local file for pytesseract to read
     filename = "{}.png".format(os.getpid())
     cv2.imwrite(filename, preprocessed_img)
     text = pytesseract.image_to_string(Image.open(filename))
     os.remove(filename)
     return text
+
+
+def preprocess_img(gray, preprocess_type):
+    """
+    Return preprocessed image using techniques below.
+    """
+    if preprocess_type == 'median_blur':
+        return cv2.medianBlur(gray, 3)
+    elif preprocess_type == 'bilateral_filter':
+        return cv2.bilateralFilter(gray, 9, 10, 200)
+    elif preprocess_type == 'threshold':
+        return cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    elif preprocess_type == 'mean_threshold':
+        return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
+                                     cv2.THRESH_BINARY, 11, 2)
+    elif preprocess_type == 'gauss_threshold':
+        return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                     cv2.THRESH_BINARY, 11, 2)
+    raise ValueError("Preprocess Method (%s) not recognized.")
 
 
 def set_image_dpi(file_path):

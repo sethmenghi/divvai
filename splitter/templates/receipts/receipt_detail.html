@@ -12,11 +12,47 @@
       </div>
     {%- endif %}
   {%- endwith %}
+
+
   <div class="user-profile">
     <div class="page-header">
+      <div class='btn-toolbar pull-right'>
+        <button type='button' class='btn btn-primary' data-toggle="modal" data-target="#processReceiptModal"><span class="glyphicon glyphicon-cog"></span></button>
+        <div class='btn-group'>
+          <button type='button' onclick="location.href='{{ url_for('receipts.delete_receipt', receipt_id=receipt.id) }}';" class='btn btn-danger'><span class="glyphicon glyphicon-trash"></span></button>
+        </div>
+      </div>
       <h2>{{ receipt.img_filename }}</h2>
     </div>
-   
+    <!-- Modal -->
+    <div class="modal fade" id="processReceiptModal" tabindex="-1" role="dialog" aria-labelledby="modalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class='btn-toolbar pull-right'>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <h3 class="modal-title">Process Receipt</h3>
+          </div>
+          <form class="form form-horizontal" method=POST enctype="multipart/form-data" action="{{ url_for('receipts.receipt_detail', receipt_id=receipt.id) }}" role="form">
+            {{ form.hidden_tag() }}
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="preprocess_type">{{ form.preprocess_type.label }}:</label>
+                {{ form.preprocess_type }}
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Process</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Receipt details -->
     <div class="row">
       <div class="col-md-3">
         <div class="panel panel-primary">
@@ -68,7 +104,7 @@
                 {{ line }}<br>
               {% endfor %}
             {% else %}
-              <button type="button" onclick="location.href='{{ url_for('receipts.process_receipt', receipt_id=receipt.id) }}';" class="btn btn-primary">Process</button>
+              Not Processed
             {% endif %}
           </div>
         </div>

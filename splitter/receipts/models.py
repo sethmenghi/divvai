@@ -126,7 +126,11 @@ class Receipt(SurrogatePK, Model):
         if self.in_s3:
             delete_s3_key(self.s3_key)
 
-    def safe_get_text_from_img(self):
+    def get_text_from_img(self, preprocess_type='threshold'):
+        self.raw_text = get_text_from_img(self.img_localpath, preprocess_type)
+        db.session.commit()
+
+    def safe_get_text_from_img_aws(self):
         """
         Safely get text from img.
         """
@@ -137,10 +141,6 @@ class Receipt(SurrogatePK, Model):
             self.get_text_from_img()
         else:
             self.get_text_from_img(img_bytes=self.img_obj)
-
-    def get_text_from_img(self):
-        self.raw_text = get_text_from_img(self.img_localpath)
-        db.session.commit()
 
     def get_text_from_img_aws(self, img_bytes=None):
         """
