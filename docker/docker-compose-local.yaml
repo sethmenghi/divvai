@@ -18,19 +18,3 @@ services:
         interval: 10s
         timeout: 5s
         retries: 5
-
-  splitterlocalstack_dev:
-    image: localstack/localstack
-    hostname: localstack
-    ports:
-      - "4567-4584:4567-4584"
-      - "${PORT_WEB_UI-8082}:${PORT_WEB_UI-8082}"
-    environment:
-      - SERVICES=s3
-      - DEBUG=1
-      - DATA_DIR=${DATA_DIR- }
-      - PORT_WEB_UI=${PORT_WEB_UI- }
-      - DOCKER_HOST=unix:///var/run/docker.sock
-    volumes:
-      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"

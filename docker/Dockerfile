@@ -6,23 +6,30 @@
 FROM python:3
 MAINTAINER Seth Menghi "sethmenghi@gmail.com"
 
-RUN apt-get update -y
-RUN apt-get install -y python-pip python-dev build-essential
-RUN apt-get install -y libpq-dev python3-dev
-RUN apt-get install python3-psycopg2
+RUN sudo apt-get update -y \
+    sudo apt-get install -y \
+        python-pip \
+        python-dev \
+        build-essential \
+        libpq-dev \
+        python3-dev \
+        python-opencv \
+        python3-psycopg2 \
+        libjpeg-dev \
+        libopencv-dev \
+        libav-tools \
+        libpng-dev \
+        python-numpy \
+        zlib1g-dev \
+        awscli
 
-RUN pip install awscli boto3 psycopg2
-RUN pip install Flask flask-bootstrap flask-bcrypt flask-debug
-RUN pip install flask-wtf flask-script flask-migrate flask-uploads
+COPY ./docker/requirements.txt /app/requirements.txt
+RUN pip install -r requirements.txt
 
 EXPOSE 5000
 
-# RUN apt-get install -y awscli
 COPY . /app
 WORKDIR /app
-
-# COPY ./docker/requirements.txt /app/requirements.txt
-# RUN pip install -r requirements.txt
 
 # RUN ["chmod", "+x", "/app/docker/splitter-entrypoint.sh"]
 ENTRYPOINT ["./docker/splitter-entrypoint.sh"]
