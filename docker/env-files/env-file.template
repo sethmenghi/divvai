@@ -1,10 +1,10 @@
 # dev, prod, or test
 CONFIG=
 
-FLASK_APP=splitter
+FLASK_APP=divvai
 
 # Upload bucket for images
-UPLOAD_BUCKET=splitter
+UPLOAD_BUCKET=divvai
 
 # AWS connection vars
 AWS_DEFAULT_REGION=us-east-1

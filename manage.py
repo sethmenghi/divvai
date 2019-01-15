@@ -2,7 +2,7 @@ from flask import url_for
 from flask_script import Manager
 from flask_migrate import MigrateCommand
 
-from splitter.app import create_app
+from divvai.app import create_app
 
 
 app = create_app()

@@ -1,14 +1,14 @@
 version: '3'
 services:
 
-  splitterpg_dev:
+  divvaipg_dev:
       image: postgres:9.5
       ports:
         - "5432:5432"
       environment:
-        - POSTGRES_USER=splitter
-        - POSTGRES_PASSWORD=splitter
-        - POSTGRES_DB=splitter
+        - POSTGRES_USER=divvai
+        - POSTGRES_PASSWORD=divvai
+        - POSTGRES_DB=divvai
       volumes:
         - ./postgres-data/postgres:/var/lib/postgresql/data
       expose:
@@ -18,19 +18,3 @@ services:
         interval: 10s
         timeout: 5s
         retries: 5
-
-  splitterlocalstack_dev:
-    image: localstack/localstack
-    hostname: localstack
-    ports:
-      - "4567-4584:4567-4584"
-      - "${PORT_WEB_UI-8082}:${PORT_WEB_UI-8082}"
-    environment:
-      - SERVICES=s3
-      - DEBUG=1
-      - DATA_DIR=${DATA_DIR- }
-      - PORT_WEB_UI=${PORT_WEB_UI- }
-      - DOCKER_HOST=unix:///var/run/docker.sock
-    volumes:
-      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"

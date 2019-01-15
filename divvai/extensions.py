@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy  # , Model
 from flask_bootstrap import Bootstrap
 from flask_uploads import UploadSet, IMAGES
 
-from splitter.settings import DefaultConfig
+from divvai.settings import DefaultConfig
 
 
 bcrypt = Bcrypt()

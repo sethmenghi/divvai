@@ -11,7 +11,7 @@ import cv2
 from flask import current_app
 from PIL import Image
 
-from splitter.exceptions import ImageFileNotFound, S3FileNotFound
+from divvai.exceptions import ImageFileNotFound, S3FileNotFound
 
 
 def get_text_from_img(img_path, preprocess_type='threshold'):

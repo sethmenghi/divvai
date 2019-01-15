@@ -1,14 +1,14 @@
-# Splitter
+# divvai
 A web app for uploading an image of a receipt and calculating who owes what using AWS Rekognition.
 
 ### Development Next Steps:
-[Trello Board](https://trello.com/b/sa1EM33j/splitter)
+[Trello Board](https://trello.com/b/sa1EM33j/divvai)
 
 ## Setup
-Splitter can be setup locally or deployed with Docker
+divvai can be setup locally or deployed with Docker
 
 ### Environment Variables
-Use the [env-file.template](./docker/env-files/env-file.template) as a guide for the environment variables used in splitter.
+Use the [env-file.template](./docker/env-files/env-file.template) as a guide for the environment variables used in divvai.
 - Create an environment file and edit the env_file in docker-compose-dev.yaml to point to that file (default is dev-env-file)
 
 ### Local
@@ -18,6 +18,6 @@ Use the [env-file.template](./docker/env-files/env-file.template) as a guide for
 ### Docker
 1. Navigate to the base project directory
 2. Build the docker image 
-`docker build -f docker/Dockerfile -t splitter:latest .`
+`docker build -f docker/Dockerfile -t divvai:latest .`
 4. Run docker-compose with [docker-compose-dev.yaml](./docker/docker-compose-dev.yaml)
 `docker-compose -f docker/docker-compose-dev.yaml up -d`

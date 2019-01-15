@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from splitter.database import SurrogatePK, db, Column, Model, relationship
+from divvai.database import SurrogatePK, db, Column, Model, relationship
 
 
 class Restaurant(SurrogatePK, Model):

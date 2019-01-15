@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 
-from splitter.extensions import images
+from divvai.extensions import images
 
 
 class UploadReceiptForm(FlaskForm):

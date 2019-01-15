@@ -4,17 +4,17 @@ import os
 class DefaultConfig(object):
     SECRET_KEY = os.environ.get('FLASK_SECRET_KEY', 'default_secret_key')
     LOG_DIR = '.'  # create log files in current working directory
-    PROJECT_NAME = 'splitter'
+    PROJECT_NAME = 'divvai'
     LOGGING_LEVEL = 'info'
     APP_DIR = os.path.abspath(os.path.dirname(__file__))  # This directory
     PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
 
     # POSTGRES Database Conf
-    DB_USER = os.environ.get('POSTGRES_USER', 'splitter')
-    DB_PASS = os.environ.get('POSTGRES_PASSWORD', 'splitter')
+    DB_USER = os.environ.get('POSTGRES_USER', 'divvai')
+    DB_PASS = os.environ.get('POSTGRES_PASSWORD', 'divvai')
     DB_HOST = os.environ.get('POSTGRES_HOST', 'localhost')
     DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
-    DB_NAME = os.environ.get('POSTGRES_DB', 'splitter')
+    DB_NAME = os.environ.get('POSTGRES_DB', 'divvai')
     DEFAULT_DB = 'postgresql://{}:{}@{}:{}/{}'.format(
         DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME
     )
@@ -23,7 +23,7 @@ class DefaultConfig(object):
     # Flask-Uploads config
     UPLOADED_FILES_ALLOW = set(['png', 'jpg', 'jpeg', 'gif'])
     UPLOADS_DEFAULT_DEST = os.path.join(APP_DIR, 'uploads')
-    UPLOAD_BUCKET = os.environ.get('UPLOAD_BUCKET', 'receipt-splitter')
+    UPLOAD_BUCKET = os.environ.get('UPLOAD_BUCKET', 'receipt-divvai')
     IMAGE_SET_NAME = 'images'
     UPLOAD_IMAGE_DIR = os.path.join(UPLOADS_DEFAULT_DEST, IMAGE_SET_NAME)
     # UPLOADED_FILES_URL = os.path.join(APP_DIR, 'uploads/')
