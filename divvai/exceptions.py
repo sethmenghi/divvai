@@ -1,5 +1,5 @@
 """
-Exceptions for splitter.
+Exceptions for divvai.
 """
 
 

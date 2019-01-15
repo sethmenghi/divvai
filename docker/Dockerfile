@@ -1,7 +1,7 @@
 # VERSION 1
 # AUTHOR: Seth Menghi
-# DESCRIPTION: AWS Receipt Splitter
-# BUILD: docker build --rm -t splitter/splitter .
+# DESCRIPTION: AWS Receipt divvai
+# BUILD: docker build --rm -t divvai/divvai .
 
 FROM python:3
 MAINTAINER Seth Menghi "sethmenghi@gmail.com"
@@ -31,7 +31,7 @@ EXPOSE 5000
 COPY . /app
 WORKDIR /app
 
-# RUN ["chmod", "+x", "/app/docker/splitter-entrypoint.sh"]
-ENTRYPOINT ["./docker/splitter-entrypoint.sh"]
+# RUN ["chmod", "+x", "/app/docker/divvai-entrypoint.sh"]
+ENTRYPOINT ["./docker/divvai-entrypoint.sh"]
 
 CMD ["python", "-m", "flask", "run", "--port=5000", "--host=0.0.0.0"]

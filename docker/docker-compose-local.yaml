@@ -1,14 +1,14 @@
 version: '3'
 services:
 
-  splitterpg_dev:
+  divvaipg_dev:
       image: postgres:9.5
       ports:
         - "5432:5432"
       environment:
-        - POSTGRES_USER=splitter
-        - POSTGRES_PASSWORD=splitter
-        - POSTGRES_DB=splitter
+        - POSTGRES_USER=divvai
+        - POSTGRES_PASSWORD=divvai
+        - POSTGRES_DB=divvai
       volumes:
         - ./postgres-data/postgres:/var/lib/postgresql/data
       expose:

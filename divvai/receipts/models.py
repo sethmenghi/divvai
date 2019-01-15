@@ -4,9 +4,9 @@ import json
 
 from flask import current_app, flash
 
-from splitter.database import SurrogatePK, db, Column, Model
-from splitter.exceptions import S3FileNotFound
-from splitter.utils import (get_text_from_img_aws, s3_keysize, upload_file_to_s3,
+from divvai.database import SurrogatePK, db, Column, Model
+from divvai.exceptions import S3FileNotFound
+from divvai.utils import (get_text_from_img_aws, s3_keysize, upload_file_to_s3,
                             readable_filesize, get_text_from_img, delete_s3_key)
 
 

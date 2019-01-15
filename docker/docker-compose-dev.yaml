@@ -1,7 +1,7 @@
 version: '3'
 services:
 
-  splitter_db:
+  divvai_db:
       image: postgres:9.5
       ports:
         - "5432:5432"
@@ -23,9 +23,9 @@ services:
     networks:
       - web_nw
 
-  splitter:
+  divvai:
     restart: always
-    image: "splitter/splitter:latest"
+    image: "divvai/divvai:latest"
     ports:
       - "5000:5000"
     env_file:
@@ -33,9 +33,9 @@ services:
     volumes:
       - ../migrations/versions/:/app/migrations/versions/
     links:
-      - "splitter_db"
+      - "divvai_db"
     depends_on:
-      - "splitter_db"
+      - "divvai_db"
     networks:
       - web_nw
       - db_nw

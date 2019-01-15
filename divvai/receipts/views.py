@@ -4,10 +4,10 @@ import os
 from flask import (Blueprint, render_template, redirect, url_for,
                    request, current_app, flash, send_from_directory)
 
-from splitter.database import db
-from splitter.forms import UploadReceiptForm, ProcessReceiptForm
-from splitter.receipts.models import Receipt
-from splitter.extensions import images
+from divvai.database import db
+from divvai.forms import UploadReceiptForm, ProcessReceiptForm
+from divvai.receipts.models import Receipt
+from divvai.extensions import images
 
 
 blueprint = Blueprint('receipts', __name__)

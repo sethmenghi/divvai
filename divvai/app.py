@@ -6,10 +6,10 @@ from flask import Flask
 # from flask_nav import Nav
 from flask_uploads import configure_uploads
 
-from splitter import receipts, restaurants
-from splitter import views
-from splitter.extensions import bcrypt, db, migrate, bootstrap, images
-from splitter.settings import configs
+from divvai import receipts, restaurants
+from divvai import views
+from divvai.extensions import bcrypt, db, migrate, bootstrap, images
+from divvai.settings import configs
 
 
 def create_app(config=None):
