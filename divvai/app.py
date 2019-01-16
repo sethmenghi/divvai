@@ -6,7 +6,7 @@ from flask import Flask
 # from flask_nav import Nav
 from flask_uploads import configure_uploads
 
-from divvai import receipts, restaurants
+from divvai import receipts, vendors
 from divvai import views
 from divvai.extensions import bcrypt, db, migrate, bootstrap, images
 from divvai.settings import configs
@@ -39,7 +39,7 @@ def register_blueprints(app):
     """Register Flask blueprints."""
     # origins = app.config.get('CORS_ORIGIN_WHITELIST', '*')
     # cors.init_app(receipts.views.blueprint, origins=origins)
-    # cors.init_app(restaurants.views.blueprint, origins=origins)
+    # cors.init_app(vendors.views.blueprint, origins=origins)
     app.register_blueprint(views.blueprint, url_prefix='/')
     app.register_blueprint(receipts.views.blueprint, url_prefix='/receipts')
-    app.register_blueprint(restaurants.views.blueprint, url_prefix='/restaurants')
+    app.register_blueprint(vendors.views.blueprint, url_prefix='/vendors')
