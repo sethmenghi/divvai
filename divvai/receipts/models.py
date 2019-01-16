@@ -1,13 +1,20 @@
 import os
 import uuid
 import json
+import cv2
+import tempfile
+
+from werkzeug.datastructures import FileStorage
 
 from flask import current_app, flash
 
+
 from divvai.database import SurrogatePK, db, Column, Model
 from divvai.exceptions import S3FileNotFound
-from divvai.utils import (get_text_from_img_aws, s3_keysize, upload_file_to_s3,
-                            readable_filesize, get_text_from_img, delete_s3_key)
+from divvai.extensions import images
+from divvai.ocr import get_text_from_img_aws, get_text_from_img, get_largest_rectangle
+from divvai.utils import (s3_keysize, upload_file_to_s3,
+                          readable_filesize, delete_s3_key)
 
 
 class Receipt(SurrogatePK, Model):
@@ -17,11 +24,12 @@ class Receipt(SurrogatePK, Model):
     price = Column(db.Float, nullable=True)
     date = Column(db.DateTime, nullable=True)
     img_filename = Column(db.String, nullable=False)
+    cropped_img = Column(db.String, nullable=True)
     s3_key = Column(db.String, nullable=True)
     raw_text = Column(db.Text, nullable=True)
     text = Column(db.Text, nullable=True)
     is_public = Column(db.Boolean, default=True)
-    restaurant_id = Column(db.Integer, db.ForeignKey('restaurants.id'), nullable=True)
+    vendor_id = Column(db.Integer, db.ForeignKey('vendors.id'), nullable=True)
 
     def __init__(self, img_filename, url):
         """
@@ -85,6 +93,19 @@ class Receipt(SurrogatePK, Model):
         with open(self.img_localpath, 'rb') as f:
             return f.read()
 
+    def create_cropped_img(self):
+        cropped_img = get_largest_rectangle(self.img_localpath)
+        with tempfile.NamedTemporaryFile(delete=True, prefix='cropped', suffix='.jpg') as tmp_fh:
+            cv2.imwrite(tmp_fh.name, cropped_img)
+            self.cropped_img = images.save(FileStorage(tmp_fh, filename=tmp_fh.name))
+        db.session.commit()
+
+    def get_text_from_img(self, preprocess_type=None):
+        if not self.cropped_img and (preprocess_type == 'edge_detection' or not preprocess_type):
+            self.create_cropped_img()
+        self.raw_text = get_text_from_img(self.img_localpath, preprocess_type)
+        db.session.commit()
+
     def safe_s3_upload(self):
         """
         Upload img to s3 if it doesn't exist or the size doesn't match.
@@ -125,10 +146,6 @@ class Receipt(SurrogatePK, Model):
         """
         if self.in_s3:
             delete_s3_key(self.s3_key)
-
-    def get_text_from_img(self, preprocess_type='threshold'):
-        self.raw_text = get_text_from_img(self.img_localpath, preprocess_type)
-        db.session.commit()
 
     def safe_get_text_from_img_aws(self):
         """

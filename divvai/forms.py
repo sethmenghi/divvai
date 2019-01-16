@@ -20,9 +20,10 @@ class ProcessReceiptForm(FlaskForm):
     Form for processing a receipt using different opencv2 methods.
     """
     preprocess_type = SelectField('Preprocess Method', choices=[
+        ('edge_detection', 'Edge Detection'),
+        ('threshold', 'Threshold'),
         ('median_blur', 'Median Blur'),
         ('bilateral_filter', 'Bilateral Filter'),
-        ('threshold', 'Threshold'),
         ('mean_threshold', 'Adaptive Mean Thresholding'),
         ('gauss_threhold', 'Adaptive Gaussian Thresholding')
-    ], default='threshold')
+    ], default='edge_detection')

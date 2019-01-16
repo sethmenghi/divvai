@@ -63,6 +63,19 @@ def receipt_detail(receipt_id):
     return render_template('receipts/receipt_detail.html', receipt=receipt, form=form)
 
 
+@blueprint.route("/<receipt_id>/api/process/<preprocess_type>")
+def process_receipt(receipt_id, preprocess_type='edge_detection'):
+    """
+    """
+    receipt = Receipt.query.get(receipt_id)
+    if receipt.raw_text:
+        flash("Text for %s reprocessed" % receipt.img_filename, 'warning')
+    else:
+        flash("Text for %s processed" % receipt.img_filename)
+    receipt.get_text_from_img(preprocess_type)
+    return redirect(url_for('.receipt_detail', receipt_id=receipt_id))
+
+
 @blueprint.route("/<receipt_id>/api/delete")
 def delete_receipt(receipt_id):
     """
@@ -80,24 +93,16 @@ def delete_receipt(receipt_id):
     return redirect(url_for('.all_receipts'))
 
 
-@blueprint.route("/<receipt_id>/api/process/<preprocess_type>")
-def process_receipt(receipt_id, preprocess_type='threshold'):
-    """
-    """
-    receipt = Receipt.query.get(receipt_id)
-    if receipt.raw_text:
-        flash("Text for %s reprocessed" % receipt.img_filename, 'warning')
-    else:
-        flash("Text for %s processed" % receipt.img_filename)
-    receipt.get_text_from_img(preprocess_type)
-    return redirect(url_for('.receipt_detail', receipt_id=receipt_id))
-
-
 @blueprint.route("/<receipt_id>/api/img/<_type>")
 def img_link(receipt_id, _type):
     receipt = Receipt.query.get(receipt_id)
     upload_folder = current_app.config.get('UPLOAD_IMAGE_DIR')
-    return send_from_directory(upload_folder, receipt.img_filename)
+    if _type == 'base':
+        return send_from_directory(upload_folder, receipt.img_filename)
+    elif _type == 'cropped':
+        return send_from_directory(upload_folder, receipt.cropped_img)
+    else:
+        raise TypeError("Recieved invalid _type parameter: %s" % _type)
 
 
 @blueprint.route("/<receipt_id>/api/s3")

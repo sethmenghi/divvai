@@ -4,7 +4,7 @@
 
 from flask import Blueprint
 
-from divvai.restaurants.models import Restaurant
+from divvai.vendors.models import Vendor
 
 
-blueprint = Blueprint('restaurants', __name__)
+blueprint = Blueprint('vendors', __name__)

@@ -26,7 +26,6 @@ class DefaultConfig(object):
     UPLOAD_BUCKET = os.environ.get('UPLOAD_BUCKET', 'receipt-divvai')
     IMAGE_SET_NAME = 'images'
     UPLOAD_IMAGE_DIR = os.path.join(UPLOADS_DEFAULT_DEST, IMAGE_SET_NAME)
-    # UPLOADED_FILES_URL = os.path.join(APP_DIR, 'uploads/')
 
     TEMPLATE_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 

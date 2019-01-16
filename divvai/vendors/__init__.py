@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-"""The restaurants module."""
+"""The vendors module."""
 from . import views  # noqa
