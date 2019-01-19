@@ -43,29 +43,30 @@ def get_text_from_img_aws(key=None, img_bytes=None):
     return response
 
 
-def get_text_from_img(img_path, preprocess_type=None):
+def get_text_from_img(img_path):
     # Load image and remove color and preprocess
     image = set_image_dpi(img_path)
-    if preprocess_type:
-        preprocessed_img = preprocess_img(image, preprocess_type)
-    else:
-        preprocessed_img = image
     # Write to local file for pytesseract to read
     filename = "{}.png".format(os.getpid())
-    cv2.imwrite(filename, preprocessed_img)
+    cv2.imwrite(filename, image)
     text = pytesseract.image_to_string(Image.open(filename))
     os.remove(filename)
     return text
 
 
-def preprocess_img(image, preprocess_type):
+def preprocess_img(image, preprocess_type, make_gray=True):
     """
     Return preprocessed image using techniques below.
     """
+    if isinstance(image, str):
+        image = cv2.imread(image)
     if preprocess_type == 'edge_detection':
-        return get_largest_rectangle(image)
-
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = get_largest_rectangle(image)
+        return preprocess_img(image, 'mean_threshold', False)
+    if make_gray:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = image
     if preprocess_type == 'median_blur':
         return cv2.medianBlur(gray, 3)
     elif preprocess_type == 'bilateral_filter':
@@ -97,8 +98,6 @@ def set_image_dpi(file_path):
 
 
 def get_largest_rectangle(image):
-    if isinstance(image, str):
-        image = cv2.imread(image)
     ratio, resized_img = load_and_resize_img(image)
     edged = get_edges(resized_img)
     contoured_img, screenCnt = find_contours(edged, resized_img)
@@ -143,6 +142,8 @@ def find_contours(edged, image):
             break
     if screenCnt is not None:
         cv2.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
+    else:
+        raise ValueError("No appropriate contours found for image.")
     return image, screenCnt
 
 

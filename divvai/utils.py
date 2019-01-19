@@ -10,6 +10,18 @@ from flask import current_app
 from divvai.exceptions import ImageFileNotFound, S3FileNotFound
 
 
+def get_upload_file(img_filename):
+    """
+    Return fullpath from img_filename.
+    """
+    base_dir = current_app.config.get('UPLOADS_DEFAULT_DEST', None)
+    img_set_folder = current_app.config.get('IMAGE_SET_NAME', None)
+    path = os.path.join(base_dir, img_set_folder, img_filename)
+    if not os.path.exists(path):
+        current_app.logger.warning("IMG not found locally (%s)" % path)
+    return path
+
+
 def raise_error_if_file_doesnt_exist(image_path):
     """
     Raise exception if file not found.

@@ -54,22 +54,40 @@
     </div>
     <!-- Receipt details -->
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-2">
         <div class="panel panel-primary">
           <div class="panel-heading">Receipt ID</div>
           <div class="panel-body">{{ receipt.id }}</div>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-2">
         <div class="panel panel-primary">
           <div class="panel-heading">Date</div>
         <div class="panel-body">{{ receipt.date if receipt.date else 'Not Processed'}}</div>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-2">
        <div class="panel panel-primary">
           <div class="panel-heading">Price</div>
           <div class="panel-body">{{ receipt.price if receipt.price else 'Not Processed' }}</div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-primary">
+          <div class="panel-heading">Phone Number</div>
+        <div class="panel-body">{{ receipt.phone if receipt.phone else 'Not Processed'}}</div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-primary">
+          <div class="panel-heading">Email</div>
+        <div class="panel-body">{{ receipt.email if receipt.email else 'Not Processed'}}</div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="panel panel-primary">
+          <div class="panel-heading">Street Address</div>
+        <div class="panel-body">{{ receipt.address if receipt.address else 'Not Processed'}}</div>
         </div>
       </div>
     </div> <!-- end row -->
@@ -84,12 +102,12 @@
           </div>
         </div>
       </div>
-      {% if receipt.cropped_img %}
+      {% if receipt.preprocessed_img_filename %}
         <div class="col-md-4">
           <div class="panel panel-primary">
             <div class="panel-heading">Cropped Image</div>
             <div class="panel-body">
-              <img class="img-responsive" src="{{ url_for('receipts.img_link', receipt_id=receipt.id, _type='cropped') }}" alt="{{ receipt.cropped_img }}">
+              <img class="img-responsive" src="{{ url_for('receipts.img_link', receipt_id=receipt.id, _type='preprocessed') }}" alt="{{ receipt.preprocessed_img_filename }}">
             </div>
           </div>
         </div>

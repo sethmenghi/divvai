@@ -72,7 +72,8 @@ def process_receipt(receipt_id, preprocess_type='edge_detection'):
         flash("Text for %s reprocessed" % receipt.img_filename, 'warning')
     else:
         flash("Text for %s processed" % receipt.img_filename)
-    receipt.get_text_from_img(preprocess_type)
+    receipt.save_preprocessed_img(preprocess_type)
+    receipt.get_text_from_img()
     return redirect(url_for('.receipt_detail', receipt_id=receipt_id))
 
 
@@ -99,8 +100,8 @@ def img_link(receipt_id, _type):
     upload_folder = current_app.config.get('UPLOAD_IMAGE_DIR')
     if _type == 'base':
         return send_from_directory(upload_folder, receipt.img_filename)
-    elif _type == 'cropped':
-        return send_from_directory(upload_folder, receipt.cropped_img)
+    elif _type == 'preprocessed':
+        return send_from_directory(upload_folder, receipt.preprocessed_img_filename)
     else:
         raise TypeError("Recieved invalid _type parameter: %s" % _type)
 

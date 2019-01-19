@@ -8,12 +8,12 @@ from werkzeug.datastructures import FileStorage
 
 from flask import current_app, flash
 
-
+from divvai import process
 from divvai.database import SurrogatePK, db, Column, Model
 from divvai.exceptions import S3FileNotFound
 from divvai.extensions import images
-from divvai.ocr import get_text_from_img_aws, get_text_from_img, get_largest_rectangle
-from divvai.utils import (s3_keysize, upload_file_to_s3,
+from divvai.ocr import (get_text_from_img_aws, get_text_from_img, preprocess_img)
+from divvai.utils import (s3_keysize, upload_file_to_s3, get_upload_file,
                           readable_filesize, delete_s3_key)
 
 
@@ -21,10 +21,8 @@ class Receipt(SurrogatePK, Model):
     __tablename__ = 'receipts'
 
     id = Column(db.Integer, primary_key=True)
-    price = Column(db.Float, nullable=True)
-    date = Column(db.DateTime, nullable=True)
     img_filename = Column(db.String, nullable=False)
-    cropped_img = Column(db.String, nullable=True)
+    preprocessed_img_filename = Column(db.String, nullable=True)
     s3_key = Column(db.String, nullable=True)
     raw_text = Column(db.Text, nullable=True)
     text = Column(db.Text, nullable=True)
@@ -43,12 +41,11 @@ class Receipt(SurrogatePK, Model):
 
     @property
     def img_localpath(self):
-        base_dir = current_app.config.get('UPLOADS_DEFAULT_DEST', None)
-        img_set_folder = current_app.config.get('IMAGE_SET_NAME', None)
-        path = os.path.join(base_dir, img_set_folder, self.img_filename)
-        if not os.path.exists(path):
-            current_app.logger.warning("IMG not found locally (%s)" % path)
-        return path
+        return get_upload_file(self.img_filename)
+
+    @property
+    def preprocessed_img_localpath(self):
+        return get_upload_file(self.preprocessed_img_filename)
 
     @property
     def in_s3(self):
@@ -93,17 +90,45 @@ class Receipt(SurrogatePK, Model):
         with open(self.img_localpath, 'rb') as f:
             return f.read()
 
-    def create_cropped_img(self):
-        cropped_img = get_largest_rectangle(self.img_localpath)
-        with tempfile.NamedTemporaryFile(delete=True, prefix='cropped', suffix='.jpg') as tmp_fh:
-            cv2.imwrite(tmp_fh.name, cropped_img)
-            self.cropped_img = images.save(FileStorage(tmp_fh, filename=tmp_fh.name))
+    @property
+    def phone_num(self):
+        if self.raw_text:
+            return process.get_phone(self.raw_text)
+
+    @property
+    def email(self):
+        if self.raw_text:
+            return process.get_email(self.raw_text)
+
+    @property
+    def address(self):
+        if self.raw_text:
+            return process.get_street(self.raw_text)
+
+    @property
+    def date(self):
+        return None
+
+    @property
+    def price(self):
+        return None
+
+    def save_preprocessed_img(self, preprocess_type):
+        if self.preprocessed_img_filename and os.path.exists(self.preprocessed_img_localpath):
+            msg = "Deleting Preprocessed Image: %s" % self.preprocessed_img_filename
+            current_app.logger.warning(msg)
+            os.remove(self.preprocessed_img_localpath)
+        img = preprocess_img(self.img_localpath, preprocess_type)
+        with tempfile.NamedTemporaryFile(delete=True, prefix='preprocessed', suffix='.jpg') as tmp_fh:
+            cv2.imwrite(tmp_fh.name, img)
+            self.preprocessed_img_filename = images.save(FileStorage(tmp_fh, filename=tmp_fh.name))
         db.session.commit()
 
-    def get_text_from_img(self, preprocess_type=None):
-        if not self.cropped_img and (preprocess_type == 'edge_detection' or not preprocess_type):
-            self.create_cropped_img()
-        self.raw_text = get_text_from_img(self.img_localpath, preprocess_type)
+    def get_text_from_img(self):
+        if self.preprocessed_img_filename:
+            self.raw_text = get_text_from_img(self.preprocessed_img_localpath)
+        else:
+            self.raw_text = get_text_from_img(self.img_localpath)
         db.session.commit()
 
     def safe_s3_upload(self):
