@@ -16,6 +16,15 @@ from skimage.filters import threshold_local
 from flask import current_app
 
 
+def return_img(image):
+    """
+    Return image from string / img.
+    """
+    if isinstance(image, str):
+        image = cv2.imread(image)
+    return image
+
+
 def get_text_from_img_aws(key=None, img_bytes=None):
     """
     Return text from image using amazon rekognition.
@@ -43,9 +52,11 @@ def get_text_from_img_aws(key=None, img_bytes=None):
     return response
 
 
-def get_text_from_img(img_path):
+def get_text_from_img(img_path, dilate_text=True):
     # Load image and remove color and preprocess
-    image = set_image_dpi(img_path)
+    image = cv2.imread(img_path)
+    if dilate_text:
+        image = dilate_image(image)
     # Write to local file for pytesseract to read
     filename = "{}.png".format(os.getpid())
     cv2.imwrite(filename, image)
@@ -54,12 +65,20 @@ def get_text_from_img(img_path):
     return text
 
 
+def dilate_image(image):
+    image = return_img(image)
+    inv = cv2.bitwise_not(image)
+    kernel = np.ones((5, 5), np.uint8)
+    dilation = cv2.dilate(inv, kernel, iterations=1)
+    inv_again = cv2.bitwise_not(dilation)
+    return inv_again
+
+
 def preprocess_img(image, preprocess_type, make_gray=True):
     """
     Return preprocessed image using techniques below.
     """
-    if isinstance(image, str):
-        image = cv2.imread(image)
+    image = return_img(image)
     if preprocess_type == 'edge_detection':
         image = get_largest_rectangle(image)
         return preprocess_img(image, 'mean_threshold', False)
